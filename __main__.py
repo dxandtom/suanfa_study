@@ -1,6 +1,257 @@
 
 
 
+# # 华为校招机试 - 网络保卫战（20240410）
+#
+# import sys
+#
+# # 输入获取
+# n = int(input())
+# matrix = [list(map(int, input().split())) for _ in range(n)]
+# exposed = list(map(int, input().split()))
+#
+# next = {}
+#
+#
+# def dfs(i, permission, visited):
+#     """
+#     :param i: 攻击者进入的节点编号
+#     :param permission: 攻击者此时的权限
+#     :param visited: 记录已攻击过的节点
+#     :return: 从节点i进入，攻击者所能攻击的节点数量
+#     """
+#     # 可以访问i点，此时被攻击的节点数为1
+#     count = 1
+#
+#     # 找到i节点的下游节点j
+#     for j in next[i]:
+#         # 如果j已经被访问过，则跳过
+#         if j in visited:
+#             continue
+#
+#         # 如果j未被访问过，且攻击者当前权限大于等于（i访问j所需的权限值），则可以进入j节点
+#         if permission >= matrix[i][j]:
+#             # 递归处理
+#             visited.add(j)
+#             count += dfs(j, matrix[i][j], visited)
+#
+#     # 返回攻击者从i节点进入后，所能攻击的节点数量count
+#     return count
+#
+#
+# # 算法入口
+# def solution():
+#     # 找到i节点可以访问的下游节点
+#     for i in range(n):
+#         next[i] = []
+#         for j in range(n):
+#             if i != j and matrix[i][j] > 0:
+#                 next[i].append(j)
+#
+#     # 将公网暴露的节点编号升序
+#     exposed.sort()
+#
+#     # R[i] 表示攻击者从节点exposed[i]进入，所能攻击的节点数量
+#     R = [0] * len(exposed)
+#     for i in range(len(exposed)):
+#         nodeIdx = exposed[i]
+#
+#         if matrix[nodeIdx][nodeIdx] == 0:
+#             continue
+#
+#         visited = set()
+#         visited.add(nodeIdx)
+#
+#         R[i] = dfs(nodeIdx, 10, visited)
+#
+#     minR = sys.maxsize
+#     idx = -1
+#
+#     # 下线exposed[i]节点
+#     for i in range(len(exposed)):
+#         # maxR记录下线exposed[i]节点后，攻击者从其他暴露节点进入所能产生的最大攻击数量
+#         maxR = 0
+#
+#         # 攻击者从exposed[j]进入，则能攻击节点数量为R[j]
+#         for j in range(len(exposed)):
+#             # 如果 i == j，则exposed[j]为下线节点，不可进入
+#             if j != i:
+#                 maxR = max(maxR, R[j])
+#
+#         # 下线exposed[i]节点，则攻击者最多可以攻击maxR个节点，如果maxR < min，则下线exposed[i]节点是更优策略
+#         if maxR < minR:
+#             minR = maxR
+#             idx = exposed[i]
+#
+#     return idx
+#
+#
+# # 算法调用
+# print(solution())
+
+
+
+## 华为校招机试 - 相似图片分类（20240410）
+# import re
+#
+#
+# class UnionFindSet:  # 并查集实现
+#     def __init__(self, n):
+#         self.fa = [i for i in range(n)]
+#         # sum[i]表示以i为根的相似类中所有图片的相似度之和
+#         self.sum = [0 for i in range(n)]
+#
+#     def find(self, x):
+#         if x != self.fa[x]:
+#             self.fa[x] = self.find(self.fa[x])
+#             return self.fa[x]
+#         return x
+#
+#     def union(self, x, y, val):
+#         x_fa = self.find(x)
+#         y_fa = self.find(y)
+#
+#         # 本次新增的相似度，归到x_fa根或者y_fa根都可以
+#         self.sum[x_fa] += val
+#
+#         if x_fa != y_fa:
+#             # 让Y_fa指向x_fa, 即x_fa成为新根
+#             self.fa[y_fa] = x_fa
+#
+#             # 此时y_fa上的相似度之和累计到新根x_fa上
+#             self.sum[x_fa] += self.sum[y_fa]
+#             # 累计完后，y_fa不在记录相似度
+#             self.sum[y_fa] = 0
+#
+#
+# # 算法入口
+# def solution():
+#     n = int(input())
+#
+#     matrix = []
+#     for _ in range(n):
+#         # 每行有 N 列数据，空格分隔（为了显示整弃，空格可能为多个）
+#         matrix.append(list(map(int, re.split(r"\s+", input()))))
+#
+#     ufs = UnionFindSet(n)
+#
+#     for i in range(n):
+#         for j in range(i + 1, n):
+#             similar = matrix[i][j]
+#
+#             if similar > 0:
+#                 # 合并两个子连通图为一个，将所有相似度之和（包括本次similar）全部转移到新连通图的根节点上
+#                 ufs.union(i, j, similar)
+#
+#     ans = []
+#
+#     for i in range(n):
+#         # 找根节点
+#         if ufs.find(i) == i:
+#             # 相似类是一个连通子图，连通子图中所有图片的相似度之和记录在根上
+#             ans.append(ufs.sum[i])
+#
+#     # 按照 “从大到小” 的顺序返回每个相似类中所有图片的相似度之和
+#     ans.sort(reverse=True)
+#
+#     return " ".join(map(str, ans))
+#
+#
+# # 算法调用
+# print(solution())
+
+# # 华为校招机试 - 云服务计费（20240410） 逻辑判断
+# # 算法入口
+# def solution():
+#     # 计费日志的条数
+#     n = int(input())
+#
+#     # key是客户id，val是客户的计费日志容器
+#     logs = {}
+#     for _ in range(n):
+#         # 时间戳,客户标识,计费因子,计费时长
+#         timestamp, custId, factor, duration = input().split(",")
+#
+#         # 初始化客户的日志容器（对象作为容器）
+#         if custId not in logs:
+#             logs[custId] = {}
+#
+#         key = timestamp + factor
+#
+#         # 若日志的客户标识、时间戳、计费因子三要素相同，则认为日志重复，不加入重复日志
+#         if key in logs[custId]:
+#             continue
+#
+#         # 日志不重复，则记录日志信息[计费因子，计费时长]
+#         logs[custId][key] = (factor, int(duration))
+#     # 计费因子的数量
+#     m = int(input())
+#
+#     # key是计费因子，val是计费因子单价
+#     unit_price = {}
+#     for _ in range(m):
+#         # 计费因子,单价
+#         factor, price = input().split(",")
+#         unit_price[factor] = int(price)
+#
+#     # 客户花费,key是客户id，val是客户所有log的花费之和
+#     fees = {}
+#
+#     for custId in logs:
+#         for factor, duration in logs[custId].values():
+#             # 计费时长（范围为0-100), 当计费时长不在范围内要认为是计费日志有问题，当成计费为 0 处理
+#             if duration > 100 or duration < 0:
+#                 duration = 0
+#
+#             # 计费因子查不到时认为计费因子单价是0
+#             price = unit_price.get(factor, 0)
+#
+#             fees[custId] = fees.get(custId, 0) + price * duration
+#
+#     # 结果按照客户标识（fees的key）进行升序
+#     for custId in sorted(fees.keys()):
+#         print(f"{custId},{fees[custId]}")
+#
+#
+# # 算法调用
+# solution()
+
+
+# # 华为OD机试 - 部门人力分配
+#
+# M = int(input())
+# requirements = list(map(int,input().split(' ')))
+# requirements.sort()
+# def cal(mid:int):
+#     l=0
+#     r=len(requirements)-1
+#     count=0
+#     while l<=r:
+#         if requirements[l] + requirements[r]<=mid:
+#             l+=1
+#         r-=1
+#         count += 1
+#     #print(f'count={count}')
+#     return M >= count
+#
+#
+# def getResult():
+#
+#     low = requirements[-1]
+#     high = requirements[-1]+requirements[-2]
+#     ans = high
+#     while low<=high:
+#         mid = (low + high) // 2
+#         #print(mid,low,high)
+#         if cal(mid):
+#             ans = mid
+#             high = mid-1
+#         else:
+#             low = mid+1
+#     return mid
+#
+# print(getResult())
+
 
 # # 华为校招机试 - 通话不中断的最短路径（20231220）bfs + 动态规划
 # # 输入获取
@@ -855,7 +1106,7 @@
 #
 # print(main())
 
-# 华为1 计算小球积分
+# 华为校招1 计算小球积分
 # balls = input()
 # grade = 0
 # for i in range(len(balls)):
@@ -874,6 +1125,1016 @@
 #     grade+=count
 #
 # print(grade)
+
+
+# # 华为OD机试 - 智能驾驶
+# import sys
+# m, n = map(int, input().split(","))
+# matrix = [list(map(int, input().split(","))) for _ in range(m)]
+# offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
+#
+#
+# # 记录路径中位置的几个状态
+# class Node:
+#     def __init__(self, x, y):
+#         self.x = x  # 位置横坐标
+#         self.y = y  # 位置纵坐标
+#         self.init = 0  # 到达此位置所需的最少初始油量
+#         self.remain = 0  # 到达此位置时剩余可用油量
+#         self.flag = False  # 到达此位置前有没有加过油
+#
+#
+# # 算法入口
+# def bfs():
+#     # 如果左上角和右下角不可达，则直接返回-1
+#     if matrix[0][0] == 0 or matrix[m - 1][n - 1] == 0:
+#         return -1
+#
+#     # 广搜队列
+#     queue = []
+#
+#     # 起始位置
+#     src = Node(0, 0)
+#
+#     if matrix[0][0] == -1:
+#         # 如果起始位置就是加油站，则到达(0,0)位置所需初始油量为0，且剩余可用油量为100，且需要标记已加油
+#         src.init = 0
+#         src.remain = 100
+#         src.flag = True
+#     else:
+#         # 如果起始位置不是加油站，则到达(0,0)位置所需的初始油量至少为matrix[0][0], 剩余可用油量为0，未加油状态
+#         src.init = matrix[0][0]
+#         src.remain = 0
+#         src.flag = False
+#
+#     queue.append(src)
+#
+#     # dist_init[x][y] 用于记录起点 (0, 0) 到达 (x, y) 的所有可达路径中最优路径（即初始油量需求最少的路径）的初始油量
+#     # 由于需要记录每个位置的最少需要的初始油量，因此每个位置所需的初始油量初始化为一个较大值
+#     dist_init = [[sys.maxsize] * n for _ in range(m)]
+#
+#     # dist_remain 用于记录起点 (0,0) 到达 (x,y) 的所有可达路径中最优路径（即初始油量需求最少的路径）的最大剩余可用油量
+#     # 即如果存在多条最优路径，我们应该选这些路径中到达此位置剩余油量最多的
+#     dist_remain = [[0] * n for _ in range(m)]
+#
+#     # 起点（0,0）到达自身位置（0,0）所需的最少初始油量和最多剩余油量
+#     dist_init[0][0] = src.init
+#     dist_remain[0][0] = src.remain
+#
+#     # 广搜
+#     while len(queue) > 0:
+#         cur = queue.pop(0)
+#
+#         # 从当前位置cur开始向上下左右四个方向探路
+#         for offsetX, offsetY in offsets:
+#             # 新位置
+#             newX = cur.x + offsetX
+#             newY = cur.y + offsetY
+#
+#             # 新位置越界 或者 新位置是障碍，则新位置不可达，继续探索其他方向
+#             if newX < 0 or newX >= m or newY < 0 or newY >= n or matrix[newX][newY] == 0:
+#                 continue
+#
+#             # 如果新位置可达，则计算到达新位置的三个状态数据
+#             init = cur.init  # 到达新位置所需的最少初始油量
+#             remain = cur.remain  # 到达新位置时还剩余的最多可用油量
+#             flag = cur.flag  # 是否加油了
+#
+#             if matrix[newX][newY] == -1:
+#                 # 如果新位置是加油站，则加满油
+#                 remain = 100
+#                 # 标记加过油了
+#                 flag = True
+#             else:
+#                 # 如果新位置不是加油站，则需要消耗matrix[newX][newY]个油
+#                 remain -= matrix[newX][newY]
+#
+#             # 如果到达新位置后，剩余油量为负数
+#             if remain < 0:
+#                 if flag:
+#                     # 如果之前已经加过油了，则说明到达此路径前是满油状态，因此我们无法从初始油量里面"借"油
+#                     continue
+#                 else:
+#                     # 如果之前没有加过油，则超出的油量（-remain），可以从初始油量里面"借"，即需要初始油量 init + (-remain) 才能到达新位置
+#                     init -= remain
+#                     # 由于初始油量 init + (-remain) 刚好只能支持汽车到达新位置，因此汽车到达新位置后剩余可用油量为0
+#                     remain = 0
+#
+#             # 如果到达新位置所需的初始油量超过了满油100，则无法到达新位置
+#             if init > 100:
+#                 continue
+#
+#             # 如果可达新位置，则继续检查当前路径策略到达新位置(newX, newY)所需的初始油量init是否比其他路径策略更少
+#             if init > dist_init[newX][newY]:
+#                 # 如果不是，则无需探索新位置(newX, newY)
+#                 continue
+#
+#             # 当前路径策略到达新位置(newX,newY)所需初始油量init更少，或者，init和前面路径策略相同，但是当前路径策略剩余可用油量remain更多
+#             if init < dist_init[newX][newY] or remain > dist_remain[newX][newY]:
+#                 # 则当前路径策略更优，记录更优路径的状态
+#                 dist_init[newX][newY] = init
+#                 dist_remain[newX][newY] = remain
+#
+#                 # 将当前新位置加入BFS队列
+#                 nxt = Node(newX, newY)
+#                 nxt.init = init
+#                 nxt.remain = remain
+#                 nxt.flag = flag
+#
+#                 queue.append(nxt)
+#
+#     # dist_init[m - 1][n - 1] 记录的是到达右下角终点位置所需的最少初始油量
+#     if dist_init[m - 1][n - 1] == sys.maxsize:
+#         return -1
+#     else:
+#         return dist_init[m - 1][n - 1]
+#
+#
+# # 算法调用
+# print(bfs())
+
+
+# # 华为OD机试 - 亲子游戏
+# n = int(input())
+# queue = []
+# candy = [[-1] * n for _ in range(n)]
+# matrix = []
+# for i in range(n):
+#     matrix.append(list(map(int, input().split())))
+#
+#     for j in range(n):
+#         # 妈妈的位置
+#         if matrix[i][j] == -3:
+#             candy[i][j] = 0
+#             queue.append((i, j))
+#
+# offsets = ((0, -1), (0, 1), (-1, 0), (1, 0))
+#
+#
+# # 算法入口
+# def bfs():
+#     global queue
+#
+#     # 记录题解
+#     ans = -1
+#
+#     # bfs 按层扩散
+#     while len(queue) > 0:
+#         # 记录当前扩散层的点
+#         newQueue = []
+#
+#         # 当前层是否有宝宝所在的点
+#         flag = False
+#
+#         # 源点坐标
+#         for x, y in queue:
+#             # 向四个方向扩散
+#             for offsetX, offsetY in offsets:
+#                 # 当前扩散点坐标
+#                 newX = x + offsetX
+#                 newY = y + offsetY
+#
+#                 # 当前扩散点坐标越界，或者扩散点是墙，则无法扩散
+#                 if newX < 0 or newX >= n or newY < 0 or newY >= n or matrix[newX][newY] == -1:
+#                     continue
+#
+#                 # 当前扩散点坐标对应的糖果数量为-1，说明对应扩散点坐标位置还没有加入到当前扩散层
+#                 if candy[newX][newY] == -1:
+#                     newQueue.append((newX, newY))  # 加入当前扩散层
+#
+#                 # 当前扩散点可能会被多个源点扩散到，因此比较保留扩散过程中带来的较大糖果数
+#                 # candy[newX][newY] 记录的是当前扩散点获得的糖果数
+#                 # candy[x][y] + max(0, matrix[newX][newY]) 记录的是从源点(x,y)带来的糖果数 + (newX,newY)位置原本的糖果数
+#                 candy[newX][newY] = max(candy[newX][newY], candy[x][y] + max(0, matrix[newX][newY]))
+#
+#                 # 如果当前扩散点是宝宝位置，则可以停止后续层级的bfs扩散，因为已经找到宝宝的最短路径长度（即扩散层数）
+#                 if matrix[newX][newY] == -2:
+#                     ans = candy[newX][newY]
+#                     flag = True
+#         # 已经找到去宝宝位置的最短路径和最大糖果数，则终止bfs
+#         if flag:
+#             break
+#         # 否则继续
+#         queue = newQueue
+#     return ans
+# # 算法调用
+# print(bfs())
+
+
+# # 华为OD机试 - 跳马 bfs
+# import sys
+# m, n = map(int, input().split())  # 棋盘行数, 棋盘列数
+# grid = [input() for _ in range(m)]  # 棋盘矩阵
+# stepGrid = [[0] * n for _ in range(m)]  # 最小步数和矩阵，stepMap[i][j]记录各个马走到棋盘(i,j)位置的最小步数之和
+#
+# # 记录所有马都可达的公共位置坐标,初始为整个棋盘
+# reach = set()
+# for i in range(m):
+#     for j in range(n):
+#         reach.add(i * n + j)
+#
+# # 马走日的偏移量
+# offsets = ((1, 2), (1, -2), (2, 1), (2, -1), (-1, 2), (-1, -2), (-2, 1), (-2, -1))
+#
+#
+# # 广搜
+# def bfs(sx, sy, k):
+#     global reach
+#
+#     # 广搜队列
+#     # (sx,sy)为马所在初始位置，马到达初始位置需要0步
+#     queue = [(sx, sy, 0)]
+#
+#     # 记录该马可以访问(sx,sy)位置
+#     vis = set()
+#     vis.add(sx * n + sy)  # 二维坐标一维化
+#
+#     # k记录该马剩余可走步数
+#     while len(queue) > 0 and k > 0:
+#         # newQueue记录该马花费相同步数的可达的位置（即BFS按层遍历的层）
+#         newQueue = []
+#
+#         # 按层BFS
+#         for x, y, step in queue:
+#             for offsetX, offsetY in offsets:
+#                 # 马走日到达的新位置
+#                 newX = x + offsetX
+#                 newY = y + offsetY
+#
+#                 pos = newX * n + newY
+#
+#                 # 如果新位置越界或者已访问过，则不能访问
+#                 if newX < 0 or newX >= m or newY < 0 or newY >= n or (pos in vis):
+#                     continue
+#
+#                 # 将新位置加入新层
+#                 newQueue.append((newX, newY, step + 1))
+#
+#                 # 该马到达(newX, newY)位置最小步数为step+1, 由于该马首次到达(newX, newY)位置，因此step+1就是最小步数
+#                 stepGrid[newX][newY] += step + 1
+#
+#                 # 记录该马访问过该位置，后续如果该马再次访问该位置，则不是最小步数
+#                 vis.add(pos)
+#
+#         queue = newQueue
+#         k -= 1  # 剩余步数减1
+#
+#     # BFS完后，将公共可达位置reach和当前马可达位置vis取交集，交集部分就是新的公共可达位置
+#     reach &= vis
+#
+#
+# # 算法入口
+# def getResult():
+#     # 遍历棋盘
+#     for i in range(m):
+#         for j in range(n):
+#             # 如果棋盘(i,j)位置是马
+#             if grid[i][j] != '.':
+#                 # 马的等级
+#                 k = int(grid[i][j])
+#                 # 对该马进行BFS走日
+#                 bfs(i, j, k)
+#
+#     # 如果所有马走完，发现没有公共可达位置
+#     if len(reach) == 0:
+#         return -1
+#
+#     # 记录所有马都可达位置的最小步数和
+#     minStep = sys.maxsize
+#
+#     for pos in reach:
+#         x = pos // n
+#         y = pos % n
+#         # (x,y)是所有马都可达的位置，stepMap[x][y]记录所有马到达此位置的步数和
+#         minStep = min(minStep, stepGrid[x][y])
+#
+#     return minStep
+#
+#
+# # 算法调用
+# print(getResult())
+
+
+#  #  华为OD机试 - 路口最短时间问题 dfs
+# import sys
+# # 根据三点坐标，确定拐弯方向
+# def getDirection(preX, preY, curX, curY, nextX, nextY):
+#     """
+#     :param preX: 前一个点横坐标
+#     :param preY: 前一个点纵坐标
+#     :param curX: 当前点横坐标
+#     :param curY: 当前点纵坐标
+#     :param nextX: 下一个点横坐标
+#     :param nextY: 下一个点纵坐标
+#     :return: cur到next的拐弯方向， >0 表示向左拐， ==0 表示直行（含调头）， <0 表示向右拐
+#     """
+#     # 向量 pre->cur
+#     dx1 = curX - preX
+#     dy1 = curY - preY
+#
+#     # 向量 cur->next
+#     dx2 = nextX - curX
+#     dy2 = nextY - curY
+#
+#     #  两个向量的叉积 >0 表示向左拐， ==0 表示直行（含调头）， <0 表示向右拐
+#     return dx1 * dy2 - dx2 * dy1
+#
+#
+# class Solution:
+#     def calcTime(self, lights, timePerRoad, rowStart, colStart, rowEnd, colEnd):
+#         n = len(lights)
+#         m = len(lights[0])
+#
+#         # 到达位置(i,j)的路径有四个来源方向
+#         # dist[i][j][k] 表示从来源方向k到达位置(i,j)所需要的时间，初始化INT_MAX
+#         dist = [[[sys.maxsize] * 4 for _ in range(m)] for _ in range(n)]
+#
+#         # 小顶堆，堆中元素是数组 [前一个位置行号，前一个位置列号，当前位置行号，当前位置列号，到达当前位置需要的时间]
+#         # 到达当前位置的时间越小，优先级越高
+#         pq = []
+#
+#         # 四个来源方向到达出发点位置 (rowStart, colStart) 所需时间均为 0
+#         for k in range(4):
+#             dist[rowStart][colStart][k] = 0
+#             # 出发点位置没有前一个位置，因此前一个位置设为(-1,-1)
+#             pq.append((-1, -1, rowStart, colStart, 0))
+#
+#         offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
+#
+#         # 每次取出最短路
+#         while len(pq) > 0:
+#             pq.sort(key=lambda x: -x[4])
+#             preX, preY, curX, curY, cost = pq.pop()
+#
+#             # 向四个方向探索
+#             for k in range(4):
+#                 # 新位置
+#                 newX = curX + offsets[k][0]
+#                 newY = curY + offsets[k][1]
+#
+#                 # 新位置越界，则不可进入
+#                 if newX < 0 or newX >= n or newY < 0 or newY >= m:
+#                     continue
+#
+#                 # 本题不允许掉头，因此新位置处于掉头位置的话，不可进入
+#                 if newX == preX and newY == preY:
+#                     continue
+#
+#                 # 每走一步都要花费 timePerRoad 单位时间
+#                 newCost = cost + timePerRoad
+#
+#                 # 出发的第一步，或者右拐，不需要等待红绿灯，其他情况需要等待红绿灯 lights[curX][curY] 单位时间
+#                 if preX != -1 and preY != -1 and getDirection(preX, preY, curX, curY, newX, newY) >= 0:
+#                     newCost += lights[curX][curY]
+#
+#                 # 如果以来源方向k到达位置（newX, newY）花费的时间 newCost 并非更优，则终止对应路径探索
+#                 if newCost >= dist[newX][newY][k]:
+#                     continue
+#
+#                 # 否则更新为更优时间
+#                 dist[newX][newY][k] = newCost
+#                 # 并继续探索该路径
+#                 pq.append((curX, curY, newX, newY, newCost))
+#
+#         # 最终取(rowEnd, colEnd)终点位置的四个来源方向路径中最短时间的作为题解
+#         return min(dist[rowEnd][colEnd])
+#
+#
+# # 实际考试时，本题为核心代码模式，即无需我们解析输入输出，因此只需要写出上面代码即可
+# if __name__ == '__main__':
+#     n, m = map(int, input().split())
+#     lights = [list(map(int, input().split())) for _ in range(n)]
+#     timePerRoad = int(input())
+#     rowStart, colStart = map(int, input().split())
+#     rowEnd, colEnd = map(int, input().split())
+#     print(Solution().calcTime(lights, timePerRoad, rowStart, colStart, rowEnd, colEnd))
+
+
+# # 华为OD机试 - 可以组成网络的服务器
+# n, m = map(int, input().split())
+# matrix = [list(map(int, input().split())) for _ in range(n)]
+# offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
+#
+#
+# def bfs(i, j):
+#     count = 1
+#     matrix[i][j] = 0
+#
+#     queue = [[i, j]]
+#
+#     while len(queue) > 0:
+#         x, y = queue.pop(0)
+#
+#         for offsetX, offsetY in offsets:
+#             newX = x + offsetX
+#             newY = y + offsetY
+#
+#             if n > newX >= 0 and m > newY >= 0 and matrix[newX][newY] == 1:
+#                 count += 1
+#                 matrix[newX][newY] = 0
+#                 queue.append([newX, newY])
+#
+#     return count
+#
+# # 算法入口
+# def getResult():
+#     ans = 0
+#
+#     for i in range(n):
+#         for j in range(m):
+#             if matrix[i][j] == 1:
+#                 ans = max(ans, bfs(i, j))
+#
+#     return ans
+#
+#
+# # 算法调用
+# print(getResult())
+
+
+# # 华为OD机试 - 考古学家 dfs
+# # 输入获取
+# n = int(input())
+# arr = input().split()
+#
+# # 全局变量
+# path = []
+# used = [False] * n
+# cache = set() # 集合里不能有重复元素
+#
+#
+# # 全排列求解
+# def dfs():
+#     if len(path) == n:
+#         cache.add("".join(path))
+#         return
+#
+#     for i in range(n):
+#         if used[i]:
+#             continue
+#
+#         # 树层去重
+#         if i > 0 and arr[i] == arr[i - 1] and not used[i - 1]:
+#             continue
+#
+#         path.append(arr[i])
+#         used[i] = True
+#         dfs()
+#         used[i] = False
+#         path.pop()
+#
+#
+# # 算法入口
+# def getResult():
+#     # 排序是为了让相同元素相邻，方便后面树层去重
+#     arr.sort()
+#     dfs()
+#
+#     # 输出石碑文字的组合（按照升序排列）
+#     for v in sorted(list(cache)):
+#         print(v)
+#
+#
+# # 算法调用
+# getResult()
+
+
+# # 华为OD机试 - 解密犯罪时间 dfs+正则
+# import re
+#
+# reg = re.compile("(([01][0-9])|([2][0-3]))[0-5][0-9]")
+#
+# # 输入获取
+# hour, minute = input().split(":")
+#
+#
+# def dfs(arr, path, res):
+#     if len(path) == 4:
+#         timeStr = "".join(path)
+#         if reg.search(timeStr) is not None:
+#             res.append(timeStr)
+#         return
+#
+#     for i in range(len(arr)):
+#         path.append(arr[i])
+#         dfs(arr, path, res)
+#         path.pop()
+#
+#
+# # 算法入口
+# def getResult():
+#     arr = list(hour)
+#     arr.extend(list(minute))
+#
+#     arr = list(set(arr))
+#
+#     res = []
+#     dfs(arr, [], res)
+#     res.sort()
+#
+#     index = res.index(hour + minute)
+#
+#     if index == len(res) - 1:
+#         recentTime = res[0]
+#     else:
+#         recentTime = res[index + 1]
+#
+#     ans = list(recentTime)
+#     ans[1] += ":"
+#     return "".join(ans)
+#
+#
+# # 调用算法
+# print(getResult())
+
+
+# # 华为OD机试 - 小华地图寻宝 dfs/bfs -- dfs
+# import sys
+#
+# sys.setrecursionlimit(5000)
+# m, n, k = list(map(int, input().split(' ')))
+#
+# offsets = ((-1, 0), (1, 0), (0, 1), (0, -1))
+# flags = [[False] * n for _ in range(m)]
+# ans = 0
+# digitSums = [0] * (max(m, n))  # 该数组索引是原始数，值是原始数对应的数位和
+# for i in range(len(digitSums)):
+#     num = i
+#     while num > 0:
+#         digitSums[i] += num % 10
+#         num //= 10
+#
+#
+# def dfs(x: int, y: int):
+#     global ans
+#     if x < 0 or x >= m or y < 0 or y >= n:  # 对应位置越界
+#         return
+#     if digitSums[x] + digitSums[y] > k:  # 数位和超过k则不能进入
+#         return
+#     if flags[x][y]:
+#         return
+#     flags[x][y] = True
+#
+#     ans += 1
+#     for offset in offsets:
+#         new_x = x + offset[0]
+#         new_y = y + offset[1]
+#         dfs(new_x, new_y)
+#
+#
+# dfs(0, 0)
+# print(ans)
+
+# # 华为OD机试 - 连续出牌数量
+# nums = list(map(int, input().split(' ')))
+# color = list(input().split(' '))
+#
+# a = list(zip(nums, color))
+# a.sort()
+# print(a)
+# ans = 0
+#
+#
+# def backtracking(a, selected: tuple, count):
+#     global ans
+#     count += 1
+#     ans = max(count, ans)
+#     if count >= len(a):
+#         return
+#     for i in range(len(a)):
+#
+#         if (a[i][0] == selected[0] or a[i][1] == selected[1]) and not flags[i]:
+#             flags[i] = True
+#             backtracking(a, a[i], count)
+#             flags[i] = False
+#             #count -= 1  #不需要count-1
+#
+#
+# for i in range(len(a)):
+#     flags = [False] * len(a)
+#     flags[i] = True
+#     backtracking(a, a[i], 1)
+# print(ans)
+
+# # 华为OD机试 - 项目排期 回溯算法+二分法
+# works = list(map(int, input().split(' ')))  # 任务量
+# n = int(input())  # 项目组人员
+#
+#
+# def check(index, buckets, limit):
+#     if index == len(works):  # 如果任务被取完了，代表可以完成全部任务
+#         return True
+#
+#     selected = works[index]  # 当前进行的任务
+#     for i in range(len(buckets)):
+#         if i > 0 and buckets[i] == buckets[i - 1]:
+#             # 剪枝优化
+#             continue
+#         if selected + buckets[i] <= limit:
+#             buckets[i] += selected
+#             if check(index + 1, buckets, limit):
+#                 return True
+#             buckets[i] -= selected
+#     return False
+#
+#
+# def solution():
+#     works.sort(reverse=True)
+#     low = max(works)
+#     high = sum(works)
+#     ans = high  # 记录题解
+#     while low <= high:
+#         mid = (low + high) // 2
+#         if check(0, [0] * n, mid):
+#             ans = mid  # 此时是一个可行解，但不一定是最优解，去尝试更优解
+#             high = mid - 1
+#         else:
+#             low = mid + 1
+#     return ans
+#
+#
+# print(solution())
+
+# ## 华为OD机试 - 字符串拼接 回溯算法
+# chr, n = list(input().split(' '))
+# n = int(n)
+# result = []
+# flags = [False] * len(chr)
+#
+#
+# def backtracking(chr, path: list, result: list, pre):
+#     if len(path) == n:
+#         result.append(path[:])
+#         # print(path)
+#         return
+#     for i in range(len(chr)):
+#         if pre >= 0 and chr[i] == chr[pre]:  # 相同的字符不能相邻，pre指向前面一个被选择的字符在path中的位置，i指向当前的
+#             continue
+#         if flags[i]:
+#             continue
+#         if i > 0 and chr[i] == chr[i - 1] and not flags[i - 1]:  # 树层去重
+#             continue
+#         path.append(chr[i])
+#         flags[i] = True
+#         # print(path)
+#         backtracking(chr, path, result, i)
+#         path.pop()
+#         flags[i] = False
+#
+#
+# chr = list(chr)
+# chr.sort()
+# backtracking(chr, [], result, -1)
+#
+#
+# # print(result)
+# def solution():
+#     for c in chr:
+#         if c < 'a' or c > 'z':
+#             return 0
+#     return 1
+#
+#
+# if solution() == 1:
+#     print(len(result))
+# else:
+#     print(0)
+
+# # 华为OD机试 - 田忌赛马 回溯算法
+# a = list(map(int, input().split(' ')))
+# b = list(map(int, input().split(' ')))
+# result = []
+# path = []
+# used = [False] * len(a)
+# a.sort()
+#
+#
+# def backtracking(a: list, path: list, result: list, used: list):
+#     if len(path) == len(a):
+#         result.append(path[:])
+#
+#     for i in range(len(a)):
+#         if used[i]:
+#             continue
+#         if i > 0 and a[i] == a[i - 1] and not used[i - 1]:  # 树层去重，关键关键关键*************
+#             continue
+#         path.append(a[i])
+#         used[i] = True
+#         backtracking(a, path, result, used)
+#         path.pop()
+#         used[i] = False
+#
+#
+# if len(a) > 1:
+#     backtracking(a, path, result, used)
+#     ans = dict()
+#
+#     for i in range(len(result)):
+#         count = 0
+#         for j in range(len(b)):
+#             if result[i][j] > b[j]:
+#                 count += 1
+#         ans[count] = ans.get(count, 0) + 1
+#     m = []
+#     for key in ans:
+#         m.append(key)
+#     m.sort()
+#     print(ans[m[-1]])
+# else:
+#     print(1)
+
+# # 华为OD机试 - 数字排列 回溯算法
+# nums = list(map(int,input().split(',')))
+# def if_right(nums:list):  #  判断输入4个数字是否符合要求
+#     if len(nums)!=4:
+#         return False
+#     if 2 in nums and 5 in nums:
+#         return False
+#     if 6 in nums and 9 in nums:
+#         return False
+#     if 0 in nums:
+#         return False
+#     for i in range(3):
+#         for j in range(i+1,4):
+#             if nums[i]==nums[j]:
+#                 return False
+#     return True
+#
+#
+# def backtracking(nums,path,result:list):
+#     if len(path)>0:
+#         result.append(path[:])
+#     for i in range(len(nums)):
+#         if nums[i] not in path:
+#             if 2 in path and nums[i]==5:
+#                 continue
+#             if 5 in path and nums[i] == 2:
+#                 continue
+#             if 6 in path and nums[i]==9:
+#                 continue
+#             if 9 in path and nums[i]==6:
+#                 continue
+#             path.append(nums[i])
+#             backtracking(nums,path,result)
+#             path.pop()
+#
+# max_num = max(nums)
+#
+# result = []
+# ans = []
+# if if_right(nums):
+#     if 2 in nums and nums.index(2) <= 3:
+#         nums.append(5)
+#     if 5 in nums and nums.index(5) <= 3:
+#         nums.append(2)
+#     if 6 in nums and nums.index(6) <= 3:
+#         nums.append(9)
+#     if 9 in nums and nums.index(9) <= 3:
+#         nums.append(6)
+#     nums.sort()
+#     backtracking(nums,[],result)
+#     for i in range(len(result)):
+#         if len(result[i]) == 1:
+#             ans.append(result[i][0])
+#         if len(result[i]) == 2:
+#
+#             ans.append(result[i][0]*10+result[i][1])
+#         if len(result[i]) == 3:
+#             ans.append(result[i][0]*100+result[i][1]*10+result[i][2])
+#         if len(result[i]) == 4:
+#             ans.append(result[i][0]*1000+result[i][1]*100+result[i][2]*10+result[i][3])
+#     ans.sort()
+#     print(ans)
+#     print(ans[max_num-1])
+# else:
+#     print(-1)
+
+
+# #  华为OD机试 - 数据单元的变化替换 正则匹配，递归
+# import re
+#
+# regexp = re.compile(r"(<.*?>)")  #  只要遇到以<开始，以>结束的就匹配，实际上这两个符号可以替换成任意符号
+#
+# # 输入获取
+# cells = input().split(",")
+#
+#
+# def changeCell(index):
+#     # 通过正则匹配出单元格内容中"引用字符串"
+#     matchers = regexp.findall(cells[index])
+#
+#     # reference记录引用字符串
+#     for reference in matchers:
+#         # 引用单元格编号只能是A~Z的字母，即引用引用字符串长度只能是3，比如"<A>"
+#         if len(reference) != 3:
+#             return False
+#
+#         # 引用单元格的编号
+#         reference_cellNum = reference[1]
+#         # 当前单元格的编号,A的ASCll编码是65
+#         self_cellNum = chr(65 + index)
+#
+#         # 引用单元格编号只能是A~Z的字母，且不能自引用
+#         if reference_cellNum < 'A' or reference_cellNum > 'Z' or reference_cellNum == self_cellNum:
+#             return False
+#         # ord（A）=65
+#         # 引用单元格的数组索引， 'A' -> 0  ... 'Z' -> 25
+#         reference_index = ord(reference_cellNum) - 65
+#
+#         # 引用单元格编号不存在
+#         if reference_index >= len(cells):
+#             return False
+#
+#         if not changeCell(reference_index):
+#             return False
+#
+#         # 将单元格内容中的引用部分，替换为被引用的单元格的内容
+#         cells[index] = cells[index].replace(reference, cells[reference_index])
+#
+#     return True
+#
+#
+# # 算法入口
+# def getResult():
+#     if len(cells) > 26:
+#         # 最多26个单元格，对应编号A~Z
+#         return "-1"
+#
+#     for i in range(len(cells)):
+#         # 替换单元格中的引用
+#         if not changeCell(i):
+#             # 替换失败，则返回-1
+#             return "-1"
+#
+#         if len(cells[i]) > 100:
+#             # 每个单元格的内容，在替换前和替换后均不超过100个字符
+#             return "-1"
+#
+#         if not re.match(r"^[a-zA-Z0-9]+$", cells[i]):
+#             # 每个单元格的内容包含字母和数字
+#             return "-1"
+#     return ",".join(cells)
+#
+#
+# # 算法调用
+# print(getResult())
+
+
+# # 华为OD机试 - 计算三叉搜索树的高度 树的定义
+# class TreeNode:
+#     def __init__(self, val):
+#         self.val = val  # 节点值
+#         self.height = None  # 节点所在高度
+#         self.left = None  # 左子树
+#         self.mid = None  # 中子树
+#         self.right = None  # 右子树
+#
+#
+# class Tree:
+#     def __init__(self):
+#         self.root = None  # 树的根节点
+#         self.height = 0  # 树的高度
+#
+#     def add(self, val):
+#         node = TreeNode(val)
+#
+#         if self.root is None:
+#             # 如果树是空的，则当前创建的节点将作为根节点
+#             node.height = 1  # 根节点的高度为1
+#             self.root = node
+#             self.height = 1
+#         else:
+#             # 如果树不是空的，则从根节点开始比较
+#             cur = self.root
+#
+#             while True:
+#                 # 假设创建的节点node是当前节点cur的子节点，则node节点高度值=cur节点高度值+1
+#                 node.height = cur.height + 1
+#                 # 如果创建的node进入新层，则更新树的高度
+#                 self.height = max(node.height, self.height)
+#
+#                 if val < cur.val - 500:
+#                     # 如果数小于节点的数减去500，则将数插入cur节点的左子树
+#                     if cur.left is None:
+#                         # 如果cur节点没有左子树，则node作为cur节点的左子树
+#                         cur.left = node
+#                         # 停止探索
+#                         break
+#                     else:
+#                         # 否则继续探索
+#                         cur = cur.left
+#                 elif val > cur.val + 500:
+#                     # 如果数大于节点的数加上500，则将数插入节点的右子树
+#                     if cur.right is None:
+#                         cur.right = node
+#                         break
+#                     else:
+#                         cur = cur.right
+#                 else:
+#                     # 如果数大于节点的数加上500，则将数插入节点的中子树
+#                     if cur.mid is None:
+#                         cur.mid = node
+#                         break
+#                     else:
+#                         cur = cur.mid
+#
+#
+# while True:
+#     try:
+#         n = int(input())
+#         nums = list(map(int, input().split()))
+#
+#         tree = Tree()
+#         for num in nums:
+#             tree.add(num)
+#
+#         print(tree.height)
+#     except:
+#         break
+
+
+# # 华为OD机试 - 特殊的加密算法 dfs
+# # 输入获取
+# n = int(input())  # 明文数字个数
+# datas = list(map(int, input().split()))  # 明文
+#
+# m = int(input())  # 密码本矩阵大小
+# secrets = []  # 密码本
+#
+# # 记录密码本中元素值等于“明文第一个数字”的所有元素的位置
+# starts = []
+#
+# for i in range(m):
+#     secrets.append(list(map(int, input().split())))
+#     for j in range(m):
+#         # 如果密码本(i,j)位置元素指等于明文第一个数字值，则记录(i,j)作为一个出发位置
+#         if secrets[i][j] == datas[0]:
+#             starts.append((i, j))
+#
+# # 上，左，右，下偏移量，注意这里的顺序是有影响的，即下一步偏移后产生的密文的字符序必然是：上 < 左 < 右 < 下
+# offsets = ((-1, 0), (0, -1), (0, 1), (1, 0))
+#
+#
+# def dfs(x, y, index, path, used):
+#     """
+#     :param x: 当前位置横坐标
+#     :param y: 当前位置纵坐标
+#     :param index: datas[index]是将要匹配的明文数字
+#     :param path: 路径
+#     :param used: 密码本各元素使用情况
+#     :return: 是否找到符合要求的路径
+#     """
+#     if index == n:
+#         # 已找到明文最后一个数字，则找到符合要求的路径
+#         return True
+#     # 否则，进行上、左、右、下四个方向偏移，注意这里的顺序是有影响的，即下一步偏移后产生的密文的字符序必然是：上 < 左 < 右 < 下
+#     for offsetX, offsetY in offsets:
+#         # 新位置
+#         newX = x + offsetX
+#         newY = y + offsetY
+#
+#         # 新位置越界，或者新位置已使用，或者新位置不是目标值，则跳过
+#         if newX < 0 or newX >= m or newY < 0 or newY >= m or used[newX][newY] or secrets[newX][newY] != datas[index]:
+#             continue
+#
+#         # 递归进入新位置
+#         path.append(f"{newX} {newY}")
+#         used[newX][newY] = True
+#
+#         # 如果当前分支可以找到符合要求的路径，则返回
+#         if dfs(newX, newY, index + 1, path, used):
+#             return True
+#
+#         # 否则，回溯
+#         used[newX][newY] = False
+#         path.pop()
+#
+#     return False
+#
+#
+# # 算法入口
+# def getResult():
+#     # 出发位置(x,y)
+#     for x, y in starts:
+#         # used[i][j]用于记录密码本(i,j)元素是否已使用
+#         used = [[False] * m for _ in range(m)]
+#         # 出发点位置元素已使用
+#         used[x][y] = True
+#
+#         # 记录结果路径各节点位置
+#         # 出发点位置记录
+#         path = [f"{x} {y}"]
+#
+#         # 开始深搜
+#         if dfs(x, y, 1, path, used):
+#             return " ".join(path)
+#
+#     return "error"
+#
+#
+# # 算法调用
+# print(getResult())
+
 
 #  背包问题
 # def test_2_wei_bag_problem1(weight, value, bagweight):
@@ -1343,7 +2604,7 @@
 #                 return False
 #         return True
 
-# 回溯算法解决组合问题
+# # 回溯算法解决组合问题
 # class Solution:
 #     def combine(self, n: int, k: int) -> list[list[int]]:
 #         result = []  # 存放结果集
