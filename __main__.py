@@ -1,8 +1,275 @@
-# 华为校招机试 - 循环依赖（20240320）
-#111
+# #  华为校招机试 - 猜帽子数量（20210331） 贪心算法
+# import math
+#
+# hat = eval(input())
+#
+#
+# def total():
+#     ans = 0
+#     dex = {}
+#     for num in hat:
+#         dex[num] = dex.get(num, 0) + 1
+#     for key in dex.keys():
+#         count = key + 1  # count是戴相同帽子的员工数量
+#         ans += math.ceil(dex[key] / count) * count  # ceil为向上取整,ans取值为,如果有x个人都有y个相同的帽子，那么分组，比如4个人都有其他2人有相同帽子，
+#         # 那就3个人为一组，剩下一个人为一组，这个一个人需要再补充两个人，也就相当于一共有两组三个人的，所以是向上取整
+#     return ans
+#
+#
+# print(total())
+
+## 华为校招机试 - 足球比赛排名（20210331）
+# import re
+#
+# regExp = re.compile(r"^([a-z])-([a-z]) (\d):(\d)$")
+# scores = {}
+#
+# while True:
+#     try:
+#         matcher = regExp.match(input())
+#
+#         team1 = matcher.group(1)
+#         team2 = matcher.group(2)
+#
+#         score1 = int(matcher.group(3))
+#         score2 = int(matcher.group(4))
+#
+#         res1 = 0
+#         res2 = 0
+#
+#         if score1 > score2:
+#             res1 += 3
+#         elif score1 < score2:
+#             res2 += 3
+#         else:
+#             res1 += 1
+#             res2 += 1
+#
+#         scores[team1] = scores.get(team1, 0) + res1
+#         scores[team2] = scores.get(team2, 0) + res2
+#     except:
+#         break
+#
+# print(",".join(map(lambda x: x[0] + " " + str(x[1]), sorted(list(scores.items()), key=lambda x: (-x[1], x[0])))))
+#
+
+# # 华为校招机试 - 发广播（20210310） 并查集实现或者dfs
+# def dfs(matrix, visited, node):
+#     visited[node] = True
+#     for i in range(len(matrix[node])):
+#         if matrix[node][i] == '1' and not visited[i]:
+#             dfs(matrix, visited, i)
+#
+# def min_broadcast_stations(matrix):
+#     n = len(matrix)
+#     visited = [False] * n
+#     count = 0
+#     for i in range(n):
+#         if not visited[i]:
+#             dfs(matrix, visited, i)
+#             count += 1
+#     return count
+#
+# if __name__ == "__main__":
+#     matrix_str = input().strip().split(',')
+#     matrix = [list(row) for row in matrix_str]  # 其实这句没必要
+#     min_stations = min_broadcast_stations(matrix)
+#     print(min_stations)
 
 
+# # gpt优化 华为校招机试 - 挑选货物（20210310）
+# def count_selections(N, K, M):
+#     total_selections = 0
+#     prefix_sum = 0
+#     prefix_sum_frequency = {0: 1}  # 初始前缀和为0的频率为1
+#
+#     for i in range(N):
+#         prefix_sum += M[i]
+#         remainder = prefix_sum % K
+#         total_selections += prefix_sum_frequency.get(remainder, 0)
+#         prefix_sum_frequency[remainder] = prefix_sum_frequency.get(remainder, 0) + 1
+#
+#     return total_selections
+#
+# # 读取输入
+# N, K = map(int, input().split())
+# M = list(map(int, input().split()))
+#
+# # 计算挑选方式并输出结果
+# result = count_selections(N, K, M)
+# print(result)
 
+# 暴力算法，超时
+# def count_selections(N, K, M):
+#     total_selections = 0
+#     for i in range(len(M)):
+#         for j in range(1, len(M)+1):
+#             if sum(M[i:i+j]) % K == 0 and i+j<=len(M):
+#                 print(f'i,j={i,i+j}')
+#                 total_selections += 1
+#     return total_selections
+#
+# # 读取输入
+# N, K = map(int, input().split())
+# M = list(map(int, input().split()))
+#
+# # 计算挑选方式并输出结果
+# result = count_selections(N, K, M)
+# print(result)
+
+
+# #  华为校招机试 - 字母替换（20210310）
+# ming = input()
+# hong = input()
+# max_count = int(input())
+#
+#
+# def getResult():
+#     min_count = max_count + 1
+#     for i in range(len(hong) - len(ming) + 1):
+#         count = 0
+#         for j in range(len(ming)):
+#             if ming[j] != hong[j + i]:
+#                 count += 1
+#                 if count > min_count:
+#                     break
+#         #if count<min_count:
+#             #min_count = count
+#         min_count = min(count,min_count)
+#     if min_count > max_count:
+#         return 0
+#     return min_count
+#
+#
+# print(getResult())
+#
+
+
+# # 华为校招机试 - 找磨损度最高和最低的硬盘（20231220）
+# endurances = list(enumerate(map(int, input().split())))
+# endurances.sort(key=lambda x: x[1])
+# result = []
+# for i in range(len(endurances)):
+#     result.append(endurances[i][0])
+# real=[]
+# for i in range(len(result)-1,len(result)-4,-1):
+#     real.append(result[i])
+#     real.sort()
+# print(real[0],real[1],real[2])
+# real=[]
+# for i in range(0,3):
+#     real.append(result[i])
+#     real.sort()
+#
+# print(real[0],real[1],real[2])
+
+
+# print(e[:3])
+# # 华为校招机试 - 循环依赖（20240320）
+# inDegree = {}  # 记录每个点的入度值
+# outDegree = {}  # 记录每个点的出度值
+# next = {}  # 记录每个点的下游点（一个元素可以依赖于多个元素）
+# prev = {}  # 记录每个点的上游点（一个元素也可被多个元素依赖）
+#
+# # 输入获取
+# N = int(input())  # 依赖关系的个数
+#
+# for _ in range(N):
+#     tmp = list(map(int, input().split()))
+#
+#     n = tmp[0]  # 第一个数 n 表示后面有 n 个元素
+#     a = tmp[1]  # 第二个数为元素编号 a
+#
+#     for i in range(2, n + 1):  # 后面n-1个数为 a 依赖的元素编号
+#         # a 依赖于 b, 根据题目用例图示来看，a和b关系为： a -> b
+#         b = tmp[i]
+#
+#         # 初始化a,b的出度
+#         outDegree.setdefault(a, 0)
+#         outDegree.setdefault(b, 0)
+#
+#         # 初始化a,b的入度
+#         inDegree.setdefault(a, 0)
+#         inDegree.setdefault(b, 0)
+#
+#         # a的出度+1, b的入度+1
+#         outDegree[a] += 1
+#         inDegree[b] += 1
+#
+#         # a的next加入b, b的prev加入a
+#         next.setdefault(a, set())
+#         next[a].add(b)
+#
+#         prev.setdefault(b, set())
+#         prev[b].add(a)
+#
+#
+# # 拓扑排序
+# def removeZeroDegree(degree, rela):
+#     """
+#     拓扑排序
+#     :param degree: 入度或出度
+#     :param rela: next或prev
+#     :return:
+#     """
+#     queue = []
+#
+#     for k in degree:
+#         if degree[k] == 0:
+#             queue.append(k)
+#
+#     while len(queue) > 0:
+#         ch = queue.pop(0)
+#
+#         if ch in rela:
+#             fathers = rela[ch]
+#
+#             for fa in fathers:
+#                 degree[fa] -= 1
+#
+#                 if degree[fa] == 0:
+#                     queue.append(fa)
+#
+#
+# # 算法入口
+# def solution():
+#     cycle = set()
+#
+#     # 剥离入度为0的点
+#     removeZeroDegree(inDegree, next)
+#     # 剥离出度为0的点
+#     removeZeroDegree(outDegree, prev)
+#
+#     for k in inDegree:
+#         # 最后的循环依赖中的点，必然入度、出度都不为0
+#         if inDegree[k] != 0 and outDegree[k] != 0:
+#             cycle.add(k)
+#
+#     # 找出循环依赖中最小值点
+#     start = min(cycle)
+#
+#     # 记录循环依赖顺序
+#     res = [start]
+#
+#     cur = start
+#     isFirst = True
+#     while isFirst or cur != start:
+#         isFirst = False
+#
+#         # 找出当前点的下一个点k
+#         for k in next[cur]:
+#             # 下一个点可能有多个，但是必然只有一个点是循环依赖中的点，因为题目说：假定总是存在唯一的循环依赖
+#             if k in cycle:
+#                 # k就是循环依赖的下一个点
+#                 res.append(k)
+#                 cur = k
+#                 break
+#
+#     return " ".join(map(str, res))
+#
+#
+# # 算法调用
+# print(solution())
 
 # 华为校招机试 - 栈数据合并（20240320）
 # list1 = list(map(int,input().split()))
