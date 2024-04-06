@@ -1,3 +1,252 @@
+
+
+
+
+# # 华为校招机试 - 通话不中断的最短路径（20231220）bfs + 动态规划
+# # 输入获取
+# th = int(input())  # 信号不中断传播的门限Th
+# m, n = map(int, input().split())  # 矩阵行数，矩阵列数
+# k = int(input())  # 基站个数
+# queue = [tuple(map(int, input().split())) for _ in range(k)]  # [(基站所在行号,基站所在列号,基站的初始信号强度)]
+#
+# grid = [[0] * n for _ in range(m)]  # grid[i][j]代表(i,j)位置的信号强度
+# offsets = ((0, -1), (0, 1), (-1, 0), (1, 0))
+#
+#
+# def bfs():  # 广度搜索初始化网格矩阵
+#     while len(queue) > 0:
+#         x, y, strong = queue.pop(0)
+#
+#         grid[x][y] = strong
+#
+#         for offsetX, offsetY in offsets:
+#             newX = x + offsetX
+#             newY = y + offsetY
+#
+#             # 如果新位置越界，或者新位置的信号强度大于strong-1，则无法进入新位置
+#             if newX < 0 or newX >= m or newY < 0 or newY >= n or grid[newX][newY] >= strong - 1:
+#                 continue
+#
+#             grid[newX][newY] = strong - 1
+#
+#             queue.append((newX, newY, grid[newX][newY]))
+#
+#
+# def getMinStep():
+#     # 如果(0,0)到(i,j)位置不可达，则初始化dp[i][j] = MAX_STEP
+#     MAX_STEP = m * n
+#
+#     # dp[i][j] 表示从(0,0)到(i,j)的最短路径距离
+#     # 初始时，假设(0,0)到所有位置都不可达
+#     dp = [[MAX_STEP] * n for _ in range(m)]
+#
+#     # (0,0)到自身的可达距离为0
+#     dp[0][0] = 0
+#
+#     for i in range(m):
+#         for j in range(n):
+#             # 如果(i,j)位置的信号强度<门限th, 则(0,0)到(i,j)不可达
+#             if grid[i][j] < th:
+#                 dp[i][j] = MAX_STEP
+#                 continue
+#
+#             # (0,0)->(i,j)的路径相当于(0,0)->(i-1,j)的路径基础上增加(i-1,j)->(i,j)的1个距离
+#             if i > 0:
+#                 dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j])
+#
+#             # (0,0)->(i,j)的路径相当于(0,0)->(i,j-1)的路径基础上增加(i,j-1)->(i,j)的1个距离
+#             if j > 0:
+#                 dp[i][j] = min(dp[i][j - 1] + 1, dp[i][j])
+#
+#     # (0,0)到(m-1,n-1)的最短距离为dp[m-1][n-1]
+#     ans = dp[m - 1][n - 1]
+#
+#     if ans >= MAX_STEP:
+#         return 0
+#     else:
+#         return ans
+#
+#
+# # 算法入口
+# def solution():
+#     # 多源bfs求出矩阵每个位置的信号强度
+#     bfs()
+#
+#     if grid[0][0] < th or grid[m - 1][n - 1] < th:
+#         # 如果左上角位置或者右下角位置的信号强度小于门限th, 则:不存在信号不中断的最短路径
+#         return 0
+#     else:
+#         return getMinStep()
+#
+#
+# # 算法调用
+# print(solution())
+
+# # 华为校招机试 - 畅玩迪士尼（20210407）dfs
+# row, col, t = list(map(int, input().split(' ')))
+# path = []
+# for i in range(row):
+#     path.append(list(map(int, input().split(' '))))
+# result = -1
+#
+# offsets = ((1, 0), (0, 1)) # 深搜的方向
+#
+#
+# def dfs(m, n, count):
+#     global result
+#
+#     if m == row - 1 and n == col - 1:
+#         if count <= t:
+#             result = max(result, count)
+#         return
+#     for offset in offsets:
+#         new_m = m + offset[0]
+#         new_n = n + offset[1]
+#         if new_m < row and new_n < col and count + path[new_m][new_n] <= t:
+#             dfs(new_m, new_n, count + path[new_m][new_n])
+#             if result >= t:
+#                 return
+#
+# dfs(0, 0, path[0][0])
+# print(result)
+
+# # 华为校招机试 - 任务实际执行时间计算（20210407）拓扑排序
+# task_runtimes = list(map(int, input().split(',')))
+# relations = []
+# for re in input().split(','):
+#     relations.append(list(map(int, re.split('->'))))
+#
+#
+# def getResult():
+#     n = len(task_runtimes)
+#     inDegree = [0] * n  # 每个任务的入度
+#     chs = {}  # 每个任务的子任务（完成该任务才能执行的任务）
+#     for ch, fa in relations:
+#         inDegree[ch] += 1
+#         chs.setdefault(fa, [])  # 收集每个任务的子任务
+#         chs[fa].append(ch)
+#     queue = [i for i in range(n)]  # 任务执行队列，按照初始顺序执行，将各个任务加入队列
+#     time = 0  # 记录时间
+#     task_complete_times = [0] * n
+#     while len(queue) > 0:
+#         taskId = queue.pop(0)
+#         if inDegree[taskId] > 0:
+#             queue.append(taskId)  # 回到队列尾重新排队
+#         else:
+#             time += task_runtimes[taskId]  # 加上该任务的执行时间
+#             task_complete_times[taskId] = time  # 记录任务实际执行时间
+#             if chs.get(taskId) is not None:  # 若该任务的子任务不是空的，那么子任务的入度都要减去1
+#                 for ch in chs[taskId]:
+#                     inDegree[ch] -= 1
+#
+#     return ','.join(map(str, task_complete_times))
+#
+#
+# print(getResult())
+
+# 华为校招机试 - 游戏分组（20210407） 方法：dfs
+
+# def max_groups(n, preferences):
+#     # 使用字典来存储每个小朋友的分组意愿
+#     groups = {}
+#     for preference in preferences:
+#         names = preference.split()
+#         #print(names)
+#         for name in names:
+#             if name not in groups:
+#                 groups[name] = set(names) - {name}
+#             else:
+#                 groups[name] |= set(names) - {name}
+#     # 使用深度优先搜索来计算最多可以分成多少组
+#     def dfs(person):
+#         if person not in visited:
+#             visited.add(person)
+#             for friend in groups[person]:
+#                 dfs(friend)
+#
+#     visited = set()
+#     max_group_count = 0
+#     for person in groups:
+#         if person not in visited:
+#             dfs(person)
+#             max_group_count += 1
+#
+#     return max_group_count
+#
+#
+# if __name__ == "__main__":
+#     N = int(input())
+#     preferences = []
+#     for _ in range(N):
+#         preference = input()#.strip()
+#         preferences.append(preference)
+#         #print(preferences)
+#     max_group_count = max_groups(N, preferences)
+#     print(max_group_count)
+
+# N = int(input())
+# name = {}
+# partner = []
+# count = 0
+# for i in range(N):
+#     a,b = input().split(' ')
+#     name[a] = name.get(a,'')+b
+# relations = list(name.items())
+# a= list(name.keys())
+# b= list(name.values())
+# def part(key,name,count):
+#
+#     first = key
+#     last = name[key]
+#
+#     if first not in partner:
+#         partner.append(first)
+#         part(last,name,count)
+#
+# def summ(count,name):
+#     if len(name) == 1:
+#         return 1
+#     for key in name:
+#         if key not in partner:
+#             if name[key] in partner:
+#                 count -=1
+#             part(key,name,count)
+#             #print(partner)
+#             count+=1
+#     return count
+# print(summ(count,name))
+#
+
+
+# # 华为校招机试 - 游标匹配问题（20210331）
+# s = input()  # 搜索串
+# t = input()  # 目标串
+# curIndex = int(input())  # 搜索指针当前的位置
+# s_char_idxs = {}
+#
+#
+# def recursive(s_idx, t_idx):
+#     if t_idx == len(t):
+#         return 0
+#     t_char = t[t_idx]  # 目标字符
+#     minStep = float('inf')
+#     for idx in s_char_idxs[t_char]:
+#         noCycle = abs(idx - s_idx) + recursive(idx, t_idx + 1)  # 循环递归，不循环的向右寻找
+#         cycle = len(s) - abs(idx - s_idx) + recursive(idx, t_idx + 1)  # 向左查找，查到第一位再向左可以跳到最后一位
+#         minStep = min(minStep, cycle, noCycle)
+#     return minStep
+#
+#
+# def solution():
+#     for i, c in enumerate(s):
+#         s_char_idxs.setdefault(c, set())
+#         s_char_idxs[c].add(i)
+#     return recursive(curIndex, 0)
+#
+#
+# print(solution())
+
+
 # #  华为校招机试 - 猜帽子数量（20210331） 贪心算法
 # import math
 #
@@ -165,6 +414,8 @@
 
 
 # print(e[:3])
+
+
 # # 华为校招机试 - 循环依赖（20240320）
 # inDegree = {}  # 记录每个点的入度值
 # outDegree = {}  # 记录每个点的出度值
